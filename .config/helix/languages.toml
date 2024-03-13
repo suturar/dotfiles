@@ -1,0 +1,104 @@
+[language-server]
+julia = { command = "julia", timeout = 60, args = [ "--startup-file=no", "--history-file=no", "--quiet", "-e", "using LanguageServer; runserver()", ] }
+pylsp = { command = "pylsp" }
+texlab = { command = "texlab" }
+
+[[language]]
+name = "odin"
+# auto-format = false
+scope = "scope.odin" # "source.odin"
+file-types = ["odin"]
+roots = [""]
+language-servers = [ "ols" ]
+comment-token = "//"
+indent = { tab-width = 4, unit = "    " }
+injection-regex = "odin"
+# formatter = { command = "odinfmt", args = [ "-stdin", "true" ] }
+
+
+[language-server.ols]
+command = "ols"
+args = []
+[language-server.ols.config] 
+enable_document_symbols = true
+enable_semantic_tokens = true
+enable_snippets = true
+enable_references = true
+verbose = false
+collection = [{name = "core", path = "$ODIN_ROOT/core"}, {name = "vendor", path = "$ODIN_ROOT/vendor"}]
+
+
+[[grammar]]
+name = "odin"
+source = { git = "https://github.com/amaanq/tree-sitter-odin" }
+
+[[language]]
+name = "latex"
+scope = "source.tex"
+injection-regex = "tex"
+file-types = ["tex", "sty", "cls", "Rd", "bbx", "cbx"]
+roots = []
+comment-token = "%"
+language-servers = [ "texlab" ]
+indent = { tab-width = 4, unit = "\t" }
+
+[[grammar]]
+name = "latex"
+source = { git = "https://github.com/latex-lsp/tree-sitter-latex", rev = "8c75e93cd08ccb7ce1ccab22c1fbd6360e3bcea6" }
+
+[[language]]
+name = "bibtex"
+scope = "source.bib"
+injection-regex = "bib"
+file-types = ["bib"]
+roots = []
+comment-token = "%"
+language-servers = [ "texlab" ]
+indent = { tab-width = 4, unit = "\t" }
+auto-format = true
+
+[language.formatter]
+command = 'bibtex-tidy'
+args = [
+  "-",
+  "--curly",
+  "--drop-all-caps",
+  "--remove-empty-fields",
+  "--sort-fields",
+  "--sort=year,author,id",
+  "--strip-enclosing-braces",
+  "--trailing-commas",
+]
+
+[[grammar]]
+name = "bibtex"
+source = { git = "https://github.com/latex-lsp/tree-sitter-bibtex", rev = "ccfd77db0ed799b6c22c214fe9d2937f47bc8b34" }
+
+[[language]]
+name = "julia"
+scope = "source.julia"
+injection-regex = "julia"
+file-types = ["jl"]
+shebangs = ["julia"]
+roots = ["Manifest.toml", "Project.toml"]
+comment-token = "#"
+language-servers = [ "julia" ]
+indent = { tab-width = 4, unit = "    " }
+
+[[grammar]]
+name = "julia"
+source = { git = "https://github.com/tree-sitter/tree-sitter-julia", rev = "8fb38abff74652c4faddbf04d2d5bbbc6b4bae25" }
+
+[[language]]
+name = "nasm"
+scope = "source.nasm"
+file-types = ["asm", "s", "S", "nasm"]
+formatter = {command = 'gawk', args = ['--field-separator= ;', '{if(NF==2) {sub(/( +$)/, "", $1); printf "%-40s;%s\n", $1, $2;} else print $0;}']}
+auto-format = true
+injection-regex = "nasm"
+roots = []
+comment-token = ";"
+indent = { tab-width = 8, unit = "        " }
+[[grammar]]
+name = "nasm"
+source = { git = "https://github.com/naclsn/tree-sitter-nasm", rev = "a0db15db6fcfb1bf2cc8702500e55e558825c48b" }

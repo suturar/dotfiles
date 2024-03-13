@@ -1,0 +1,12 @@
+theme = "nightfox"
+[editor.soft-wrap]
+enable = true
+[editor]
+line-number = "relative"
+true-color=true
+[keys.insert]
+j = {k = "normal_mode"}
+[editor.cursor-shape]
+insert = "bar"
+normal = "block"
+select = "underline"
