@@ -1,4 +1,3 @@
-alias hx=helix
 alias lla="ls -hla"
 set -x EDITOR helix
 
