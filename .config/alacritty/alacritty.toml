@@ -1,36 +1,30 @@
-# theme = "Codeschool.dark"
-
-[colors]
-# author = "Chris Kempson"
-# name = "Codeschool (dark)"
-
 [colors.bright]
-black = "#3f4944"
-blue = "#484d79"
-cyan = "#b02f30"
-green = "#237986"
-magenta = "#c59820"
-red = "#2a5491"
-white = "#b5d8f6"
-yellow = "#a03b1e"
+black   = '#282828'
+red     = '#ff4f58'
+green   = '#73c936'
+yellow  = '#ffdd33'
+blue    = '#96a6c8'
+magenta = '#9e95c7'
+cyan    = '#96a6c8'
+white   = '#ffffff'
 
 [colors.cursor]
 cursor = "#9ea7a6"
 text = "#232c31"
 
 [colors.normal]
-black = "#232c31"
-blue = "#484d79"
-cyan = "#b02f30"
-green = "#237986"
-magenta = "#c59820"
-red = "#2a5491"
-white = "#9ea7a6"
-yellow = "#a03b1e"
+black   = '#000000'
+red     = '#f43841'
+green   = '#73c936'
+yellow  = '#ffdd33'
+blue    = '#5f627f'
+magenta = '#9e95c7'
+cyan    = '#5f627f'
+white   = '#ffffff'
 
 [colors.primary]
-background = "#232c31"
-foreground = "#9ea7a6"
+background = '#181818'
+foreground = '#e4e4ef'
 
 [font]
 size = 13
