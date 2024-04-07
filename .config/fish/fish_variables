@@ -1,6 +1,6 @@
 # This file contains fish universal variable definitions.
 # VERSION: 3.0
-SETUVAR --export ODIN_ROOT:/home/seth/opt/Odin/
+SETUVAR --export ODIN_ROOT:/home/seth/Porcilica/Odin/
 SETUVAR SHELL:fish
 SETUVAR __fish_initialized:3400
 SETUVAR fish_color_autosuggestion:brblack
