@@ -10,3 +10,7 @@ j = {k = "normal_mode"}
 insert = "bar"
 normal = "block"
 select = "underline"
+[editor.whitespace.render]
+space = "all"
+tab = "all"
+
