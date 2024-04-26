@@ -30,7 +30,7 @@ collection = [{name = "core", path = "$ODIN_ROOT/core"}, {name = "vendor", path 
 
 [[grammar]]
 name = "odin"
-source = { git = "https://github.com/amaanq/tree-sitter-odin" }
+source = { git = "https://github.com/ap29600/tree-sitter-odin", rev = "4d6b6444471ffac5ce3dc493ea4961fc672d934f" }
 
 [[language]]
 name = "latex"
