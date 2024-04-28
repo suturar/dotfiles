@@ -10,7 +10,7 @@
 (add-to-list 'default-frame-alist '(font . "MonaspiceArNerdFontMono-15"))
 (use-package company
   :ensure t
-  :hook (prog-mode . company-mode))
+  :hook (prog-mode latex-mode))
 (use-package julia-mode
   :ensure t
   :mode "\\.jl$")
