@@ -10,6 +10,7 @@
 (global-display-line-numbers-mode 1)
 (setq display-line-numbers-type 'relative)
 (add-to-list 'default-frame-alist '(font . "MonaspiceArNerdFontMono-15"))
+(add-to-list 'load-path (concat user-emacs-directory "local/"))
 (use-package company
   :ensure t
   :hook (prog-mode latex-mode))
@@ -26,5 +27,12 @@
   (global-set-key (kbd "C->") 'mc/mark-next-like-this)
   (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
   (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+  )
+(use-package odin-mode
+  :bind (:map odin-mode-map
+	      ("C-c C-r" . 'odin-run-project)
+	      ("C-c C-c" . 'odin-build-project)
+	      ("C-c C-t" . 'odin-test-project)
+	      )
   )
 
