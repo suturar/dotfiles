@@ -22,11 +22,12 @@
   :init (load-theme 'gruber-darker t))
 (use-package multiple-cursors
   :ensure t
-  :config 
-  (global-set-key (kbd "C->") 'mc/mark-next-like-this)
-  (global-set-key (kbd "C->") 'mc/mark-next-like-this)
-  (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-  (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+  :bind (:map global-map 
+	      ("C->" . 'mc/mark-next-like-this)
+	      ("C->" . 'mc/mark-next-like-this)
+	      ("C-<" . 'mc/mark-previous-like-this)
+	      ("C-c C-<" . 'mc/mark-all-like-this)
+	      )
   )
 (use-package odin-mode
   :bind (:map odin-mode-map
@@ -35,4 +36,11 @@
 	      ("C-c C-t" . 'odin-test-project)
 	      )
   )
-
+(use-package smex
+  :ensure t
+  :bind (:map global-map
+	      ("M-x" . 'smex)
+	      ("M-X" . 'smex-major-mode-commands)
+	      ("C-c C-c M-x" . 'execute-extended-command)
+	      )
+)
