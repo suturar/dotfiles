@@ -28,4 +28,3 @@
   (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
   )
 
-
