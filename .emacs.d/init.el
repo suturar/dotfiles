@@ -6,6 +6,7 @@
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (setq inhibit-splash-screen t)
+(setq make-backup-files nil)
 (setq use-file-dialog nil)
 (global-display-line-numbers-mode 1)
 (setq display-line-numbers-type 'relative)
