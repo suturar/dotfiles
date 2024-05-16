@@ -24,7 +24,8 @@
 (use-package julia-repl
   :ensure t
   :hook (julia-mode . julia-repl-mode)
-  :init (setenv "JULIA_NUM_THREADS" "8"))
+  :init (setenv "JULIA_NUM_THREADS" "8")
+  :config (julia-repl-set-terminal-backend 'vterm))
 (use-package gruber-darker-theme
   :ensure t
   :init (load-theme 'gruber-darker t))
