@@ -12,6 +12,9 @@
 (setq display-line-numbers-type 'relative)
 (add-to-list 'default-frame-alist '(font . "MonaspiceArNerdFontMono-15"))
 (add-to-list 'load-path (concat user-emacs-directory "local/"))
+;; Dired options
+(setq dired-listing-switches "-alh")
+;; Packages
 (use-package company
   :ensure t
   :hook (prog-mode latex-mode))
