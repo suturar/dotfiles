@@ -10,6 +10,7 @@
 (setq use-file-dialog nil)
 (global-display-line-numbers-mode 1)
 (setq display-line-numbers-type 'relative)
+(setq column-number-mode t)
 (add-to-list 'default-frame-alist '(font . "MonaspiceArNerdFontMono-15"))
 (add-to-list 'load-path (concat user-emacs-directory "local/"))
 ;; Dired options
@@ -29,6 +30,12 @@
 (use-package gruber-darker-theme
   :ensure t
   :init (load-theme 'gruber-darker t))
+(use-package vterm
+  :ensure t
+  :bind( :map vterm-mode-map
+	 ("C-c C-o" . 'compile-goto-error)
+	 )
+  )
 (use-package multiple-cursors
   :ensure t
   :bind (:map global-map 
