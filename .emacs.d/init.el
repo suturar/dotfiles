@@ -18,7 +18,7 @@
 ;; Packages
 (use-package company
   :ensure t
-  :hook (prog-mode latex-mode))
+  :hook ((prog-mode LaTeX-mode) . company-mode))
 (use-package julia-mode
   :ensure t
   :mode "\\.jl$")
@@ -60,3 +60,17 @@
 	      ("C-c C-c M-x" . 'execute-extended-command)
 	      )
 )
+;; LaTeX
+;; Set up zathura with synctex (that's what TeX-source-correlate-mode does
+(use-package tex
+  :ensure auctex
+  :hook (LaTeX-mode . TeX-source-correlate-mode)
+  :config
+  (setq TeX-view-program-selection '(((output-dvi has-no-display-manager)
+	  "dvi2tty")
+	 ((output-dvi style-pstricks)
+	  "dvips and gv")
+	 (output-dvi "xdvi")
+	 (output-pdf "Zathura")
+	 (output-html "xdg-open"))
+	))
