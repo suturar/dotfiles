@@ -199,3 +199,5 @@ bindsym $mod+r mode "resize"
 bar {
         status_command i3status
 }
+# Self-explanatory, needed for autofirma mostly
+exec --no-startup-id /usr/libexec/xfce-polkit &
