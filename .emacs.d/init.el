@@ -74,3 +74,6 @@
 	 (output-pdf "Zathura")
 	 (output-html "xdg-open"))
 	))
+;; Magit
+(use-package magit
+  :ensure t)
