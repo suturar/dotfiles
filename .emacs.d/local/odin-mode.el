@@ -101,6 +101,9 @@
     (modify-syntax-entry ?\" "\"" table)
     (modify-syntax-entry ?\\ "\\" table)
 
+    ;; Rune literal
+    (modify-syntax-entry ?' "\"" table)
+    
     ;; Comments
     (modify-syntax-entry ?/ ". 124b" table)
     (modify-syntax-entry ?* ". 23n" table)
