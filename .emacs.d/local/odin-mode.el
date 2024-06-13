@@ -36,14 +36,12 @@
   :group 'languages)
 
 (defconst odin-keywords
-  '("import" "foreign" "package"
-    "where" "when" "if" "else" "for" "switch" "in" "do" "case"
-    "break" "continue" "fallthrough" "defer" "return" "proc"
-    "struct" "union" "enum" "bit_field" "bit_set" "map" "dynamic"
-    "auto_cast" "cast" "transmute" "distinct" "opaque"
-    "using" "inline" "no_inline"
-    "size_of" "align_of" "offset_of" "type_of"
-    "context"))
+  '(
+    "asm" "auto_cast" "bit_set" "break" "case" "cast" "context"
+    "continue" "defer" "distinct" "do" "dynamic" "else" "enum"
+    "fallthrough" "for" "foreign" "if" "import" "in" "map" "not_in"
+    "or_else" "or_return" "package" "proc" "return" "struct" "switch"
+    "transmute" "typeid" "union" "using" "when" "where" ))
 
 (defconst odin-builtins
   '("len" "cap"
@@ -60,7 +58,7 @@
     "append" "append_string" "clear_dynamic_array" "reserve_dynamic_array"
     "resize_dynamic_array" "incl_elem" "incl_elems" "incl_bit_set"
     "excl_elem" "excl_elems" "excl_bit_set" "incl" "excl" "card"
-    "assert" "panic" "unimplemented" "unreachable"))
+    "assert" "panic" "unimplemented" "unreachable" "raw_data"))
 
 (defconst odin-constants
   '("nil" "true" "false"))
