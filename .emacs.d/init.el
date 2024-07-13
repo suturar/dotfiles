@@ -77,3 +77,6 @@
 ;; Magit
 (use-package magit
   :ensure t)
+
+;; Tramp
+(setq tramp-auto-save-directory "~/.emacs.d/tramp-auto-save/")
