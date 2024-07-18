@@ -11,6 +11,7 @@
 (global-display-line-numbers-mode 1)
 (setq display-line-numbers-type 'relative)
 (setq column-number-mode t)
+(setopt use-short-answers t)
 (add-to-list 'default-frame-alist '(font . "MonaspiceArNerdFontMono-15"))
 (add-to-list 'load-path (concat user-emacs-directory "local/"))
 ;; Dired options
