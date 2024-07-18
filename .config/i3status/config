@@ -14,12 +14,14 @@ general {
 # order += "ipv6"
 order += "wireless _first_"
 order += "ethernet _first_"
-order += "battery all"
 order += "disk /"
+order += "disk /mnt/Archivo/"
 order += "load"
 order += "memory"
+order += "battery all"
 order += "volume master"
 order += "tztime local"
+
 
 wireless _first_ {
         format_up = "W: (%quality at %essid) %ip"
@@ -38,7 +40,11 @@ battery all {
 }
 
 disk "/" {
-        format = "%avail"
+        format = "Principal: %avail"
+}
+
+disk "/mnt/Archivo/" {
+     format = "Archivo: %avail"
 }
 
 load {
