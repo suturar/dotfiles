@@ -45,6 +45,8 @@
 	      ("C-c C-<" . 'mc/mark-all-like-this)
 	      )
   )
+(use-package fasm-mode
+  :mode "\\.fasm\\'")
 (use-package odin-mode
   :bind (:map odin-mode-map
 	      ("C-c C-r" . 'odin-run-project)
