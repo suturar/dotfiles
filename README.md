@@ -8,6 +8,7 @@ Managed with GNU stow
   * `alacritty`
   * `fish`
   * `helix`
+  * `emacs`
   * `i3wm`
 - Extra recommended packages
   * `gf2`: gdb frontend
