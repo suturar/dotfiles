@@ -1,7 +1,8 @@
+(load (concat user-emacs-directory "elpaca-init.el"))
+(elpaca elpaca-use-package
+  ;; Enable Elpaca support for use-package's :ensure keyword.
+  (elpaca-use-package-mode))
 (setq custom-file (make-temp-file "emacs-custom"))
-(require 'package)
-(add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/"))
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (menu-bar-mode -1)
