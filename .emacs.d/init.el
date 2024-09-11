@@ -81,6 +81,18 @@
 ;; Magit
 (use-package magit
   :ensure t)
+(use-package transient
+  :ensure t)
+
 
 ;; Tramp
 (setq tramp-auto-save-directory "~/.emacs.d/tramp-auto-save/")
+
+;; Ido-mode
+(ido-mode t)
+(setq ido-auto-merge-work-directories-length -1)
+
+;; Enable Disabled commands
+(dolist (command '(upcase-region))
+  (put command 'disabled nil))
+
