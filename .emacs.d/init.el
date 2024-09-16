@@ -84,6 +84,10 @@
 (use-package transient
   :ensure t)
 
+;; Gnuplot
+(use-package gnuplot
+  :ensure t
+  :mode ("\\.gp\\'" . gnuplot-mode))
 
 ;; Tramp
 (setq tramp-auto-save-directory "~/.emacs.d/tramp-auto-save/")
