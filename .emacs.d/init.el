@@ -16,8 +16,9 @@
 (add-to-list 'default-frame-alist '(font . "MonaspiceArNerdFontMono-15"))
 (add-to-list 'load-path (concat user-emacs-directory "local/"))
 ;; Dired options
-(setq dired-listing-switches "-alh")
-;; Packages
+(use-package dired
+  :config (setq dired-listing-switches "-alh")
+  :hook ((dired-mode) . auto-revert-mode))
 (use-package company
   :ensure t
   :hook ((prog-mode LaTeX-mode) . company-mode))
@@ -63,7 +64,13 @@
 	      ("M-X" . 'smex-major-mode-commands)
 	      ("C-c C-c M-x" . 'execute-extended-command)
 	      )
-)
+  )
+(use-package image-mode
+  :hook (image-mode . auto-revert-mode))
+(use-package text-mode
+  :hook (text-mode . auto-fill-mode)
+  :hook (text-mode . (lambda () (set-fill-column 100)))
+  :mode ("\\.md\\'" . text-mode))
 ;; LaTeX
 ;; Set up zathura with synctex (that's what TeX-source-correlate-mode does
 (use-package tex
@@ -77,7 +84,8 @@
 	 (output-dvi "xdvi")
 	 (output-pdf "Zathura")
 	 (output-html "xdg-open"))
-	))
+	)
+  )
 ;; Magit
 (use-package magit
   :ensure t)
@@ -100,3 +108,12 @@
 (dolist (command '(upcase-region))
   (put command 'disabled nil))
 
+(defun switch-theme (theme)
+  ;; This interactive call is taken from `load-theme'
+  (interactive
+   (list
+    (intern (completing-read "Load custom theme: "
+			     (mapcar 'symbol-name
+				     (custom-available-themes))))))
+  (mapcar #'disable-theme custom-enabled-themes)
+  (load-theme theme t))
