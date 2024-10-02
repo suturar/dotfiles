@@ -17,7 +17,9 @@
 (add-to-list 'load-path (concat user-emacs-directory "local/"))
 ;; Dired options
 (use-package dired
-  :config (setq dired-listing-switches "-alh")
+  :config
+  (setq dired-listing-switches "-alh")
+  (add-to-list 'dired-guess-shell-alist-user '("\\.pdf\\'" "zathura"))
   :hook ((dired-mode) . auto-revert-mode))
 (use-package company
   :ensure t
@@ -108,6 +110,7 @@
 (dolist (command '(upcase-region))
   (put command 'disabled nil))
 
+;; My functions
 (defun switch-theme (theme)
   ;; This interactive call is taken from `load-theme'
   (interactive
