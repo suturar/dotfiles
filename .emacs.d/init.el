@@ -1,7 +1,7 @@
-(load (concat user-emacs-directory "elpaca-init.el"))
-(elpaca elpaca-use-package
-  ;; Enable Elpaca support for use-package's :ensure keyword.
-  (elpaca-use-package-mode))
+(require 'package)
+(add-to-list 'package-archives
+             '("melpa" . "https://melpa.org/packages/"))
+
 (setq custom-file (make-temp-file "emacs-custom"))
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
@@ -99,6 +99,14 @@
   :ensure t
   :mode ("\\.gp\\'" . gnuplot-mode))
 
+(use-package org
+  :config
+  (setq org-latex-compiler "xelatex")
+  (add-to-list 'org-latex-packages-alist '("utf8x" "inputenc"))
+  (add-to-list 'org-latex-packages-alist '("" "libertine"))
+  (add-to-list 'org-latex-packages-alist '("" "unicode-math"))
+  )
+
 ;; Tramp
 (setq tramp-auto-save-directory "~/.emacs.d/tramp-auto-save/")
 
@@ -109,6 +117,9 @@
 ;; Enable Disabled commands
 (dolist (command '(upcase-region))
   (put command 'disabled nil))
+
+;; My keybindings
+(keymap-global-set "C-," #'duplicate-line)
 
 ;; My functions
 (defun switch-theme (theme)
