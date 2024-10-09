@@ -31,13 +31,13 @@
   :ensure t
   :hook (julia-mode . julia-repl-mode)
   :init (setenv "JULIA_NUM_THREADS" "8")
-  :config (julia-repl-set-terminal-backend 'vterm))
+  :config (julia-repl-set-terminal-backend 'eat))
 (use-package gruber-darker-theme
   :ensure t
   :init (load-theme 'gruber-darker t))
-(use-package vterm
+(use-package eat
   :ensure t
-  :bind( :map vterm-mode-map
+  :bind( :map eat-mode-map
 	 ("C-c C-o" . 'compile-goto-error)
 	 )
   )
