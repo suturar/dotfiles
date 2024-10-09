@@ -1,5 +1,5 @@
-alias lla="ls -hla"
-
-if status is-interactive
-    # Commands to run in interactive sessions can go here
+if begin status --is-login; and test $(tty) = /dev/tty1; end
+    exec startx
 end
+
+
