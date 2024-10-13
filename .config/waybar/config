@@ -1,0 +1,57 @@
+{
+    "layer": "top",
+    "position": "bottom",
+    "modules-left": ["sway/workspaces", "sway/mode"],
+    // "modules-center": ["custom/name"],
+    "modules-right": ["network", "cpu", "temperature", "memory", "disk#main", "disk#archive", "pulseaudio", "battery", "clock", "tray"],
+    // "custom/name": {
+    // 	"format": "Castaña a nueces"
+    // },
+    "sway/window": {
+	"max-length": 50
+    },
+    "cpu": {
+	"format": "CPU: {load}"
+    },
+    "temperature": {
+	"format": "{temperatureC}°C "
+    },
+    "memory": {
+	"format": "Free Mem: {avail}GB"
+    },
+    "network": {
+	"format": "{ifname} ({essid}): {signalStrength}%"
+    },
+    "pulseaudio": {
+	"format": "{volume}%",
+	"format": "(bt) {volume}%",
+	"format-muted": "(muted) {volume}%",
+	"on-click": "pavucontrol"
+    },
+    "disk#main": {
+	"path": "/",
+	"format": "Main: {specific_used:0.2f}/{specific_total:0.2f} GB",
+	"unit": "GB"
+    },
+    "disk#archive": {
+	"path": "/mnt/Archivo",
+	"format": "Archive: {specific_used:0.2f}/{specific_total:0.2f} GB",
+	"unit": "GB"
+    },
+    "battery": {
+	"format": "{capacity}% {icon} - {time}",
+	"format-charging": "{capacity}% ⚡{time}",
+	"format-time": "{H}h{M}m",
+	"format-icons": ["", "", "", "", ""],
+	"states": {
+	    "warning": 30,
+	    "critical": 15,
+	},
+    },
+    "clock": {	
+	"timezone": "Europe/Madrid",
+	"format": "{:L%a, %d. %b %H:%M}",
+	"locale": "es_ES.UTF-8"
+    },
+    "reload_style_on_change" : true
+}

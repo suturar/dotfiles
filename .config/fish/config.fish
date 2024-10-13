@@ -1,5 +1,9 @@
 if begin status --is-login; and test $(tty) = /dev/tty1; end
-    exec startx
+    if test (hostname) = "nuez"
+        exec dbus-run-session -- sway
+    else
+	exec startx
+    end
 end
 
 
