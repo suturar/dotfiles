@@ -20,7 +20,20 @@
   :config
   (setq dired-listing-switches "-alh")
   (add-to-list 'dired-guess-shell-alist-user '("\\.pdf\\'" "zathura"))
-  :hook ((dired-mode) . auto-revert-mode))
+  :hook ((dired-mode) . auto-revert-mode)
+  :bind (:map
+	 dired-mode-map
+	 ("<mouse-2>" . 'dired-mouse-find-file)))
+(use-package casual-calc
+  :ensure t
+  :bind (:map
+	 calc-mode-map
+	 ("C-o" . casual-calc-tmenu)
+	 :map
+	 calc-alg-map
+	 ("C-o" . casual-calc-tmenu))
+  :after calc)
+
 (use-package company
   :ensure t
   :hook ((prog-mode LaTeX-mode) . company-mode))
