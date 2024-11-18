@@ -7,6 +7,10 @@
     // "custom/name": {
     // 	"format": "Castaña a nueces"
     // },
+    "sway/workspaces": {
+    	"enable-bar-scroll": true,
+	// "smooth-scrolling-threshold": 3
+    },  
     "sway/window": {
 	"max-length": 50
     },
@@ -14,18 +18,20 @@
 	"format": "CPU: {load}"
     },
     "temperature": {
+    	"hwmon-path": ["/sys/class/hwmon/hwmon3/temp1_input"],	
 	"format": "{temperatureC}°C "
     },
     "memory": {
 	"format": "Free Mem: {avail}GB"
     },
     "network": {
-	"format": "{ifname} ({essid}): {signalStrength}%"
+	"format": "{ifname} ({essid}): {signalStrength}%",
+	"format-disconnected": "No signal"
     },
     "pulseaudio": {
 	"format": "{volume}%",
-	"format": "(bt) {volume}%",
-	"format-muted": "(muted) {volume}%",
+	"format-bluetooth": "(bt) {volume}%",
+	"format-muted": "🔇{volume}%",
 	"on-click": "pavucontrol"
     },
     "disk#main": {

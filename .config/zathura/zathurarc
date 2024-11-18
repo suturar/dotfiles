@@ -26,3 +26,4 @@ map <A-\>> goto bottom
 map <A-v> scroll full-up
 
 set selection-clipboard clipboard
+set recolor true
