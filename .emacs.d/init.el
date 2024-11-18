@@ -33,7 +33,8 @@
 	 calc-alg-map
 	 ("C-o" . casual-calc-tmenu))
   :after calc)
-
+(use-package cc-mode
+  :config (setq-default c-basic-offset 4))
 (use-package company
   :ensure t
   :hook ((prog-mode LaTeX-mode) . company-mode))
@@ -83,7 +84,8 @@
 (use-package image-mode
   :hook (image-mode . auto-revert-mode))
 (use-package text-mode
-  :hook (text-mode . auto-fill-mode)
+  :hook (text-mode . (lambda () (if (equal major-mode 'LaTeX-mode)
+				    () (auto-fill-mode))))
   :hook (text-mode . (lambda () (set-fill-column 100)))
   :mode ("\\.md\\'" . text-mode))
 ;; LaTeX
@@ -92,6 +94,7 @@
   :ensure auctex
   :hook (LaTeX-mode . TeX-source-correlate-mode)
   :config
+  (setq latex-run-command "xelatex")
   (setq TeX-view-program-selection '(((output-dvi has-no-display-manager)
 	  "dvi2tty")
 	 ((output-dvi style-pstricks)
@@ -110,7 +113,13 @@
 ;; Gnuplot
 (use-package gnuplot
   :ensure t
-  :mode ("\\.gp\\'" . gnuplot-mode))
+  :mode ("\\.gp\\'" . gnuplot-mode)
+  :hook (gnuplot-comint-mode . (lambda ()
+				 (gnuplot-send-string-to-gnuplot "set terminal qt size 800, 600\n" "line")
+				 (gnuplot-send-string-to-gnuplot "set terminal qt size 800, 600\n" "line")
+				 ))
+  )
+
 
 (use-package org
   :config
@@ -120,15 +129,22 @@
   (add-to-list 'org-latex-packages-alist '("" "unicode-math"))
   )
 
+(use-package move-dup
+  :ensure t
+  :bind (
+	 ("M-[" . move-dup-move-lines-up)
+	 ("M-]" . move-dup-move-lines-down))
+  )
+
 ;; Tramp
 (setq tramp-auto-save-directory "~/.emacs.d/tramp-auto-save/")
 
 ;; Ido-mode
 (ido-mode t)
-(setq ido-auto-merge-work-directories-length -1)
+(setq ido-auto-merge-work-directories-length 0)
 
 ;; Enable Disabled commands
-(dolist (command '(upcase-region))
+(dolist (command '(upcase-region narrow-to-region))
   (put command 'disabled nil))
 
 ;; My keybindings
@@ -144,3 +160,4 @@
 				     (custom-available-themes))))))
   (mapcar #'disable-theme custom-enabled-themes)
   (load-theme theme t))
+
