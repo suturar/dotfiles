@@ -24,20 +24,24 @@
   :bind (:map
 	 dired-mode-map
 	 ("<mouse-2>" . 'dired-mouse-find-file)))
-(use-package casual-calc
-  :ensure t
-  :bind (:map
-	 calc-mode-map
-	 ("C-o" . casual-calc-tmenu)
-	 :map
-	 calc-alg-map
-	 ("C-o" . casual-calc-tmenu))
-  :after calc)
 (use-package cc-mode
   :config (setq-default c-basic-offset 4))
 (use-package company
   :ensure t
-  :hook ((prog-mode LaTeX-mode) . company-mode))
+  :hook ((prog-mode LaTeX-mode) . company-mode)
+  :config (setq company-backends (delete 'company-clang company-backends))
+  )
+(use-package browse-kill-ring
+  :ensure t
+  :bind( :map global-map
+	 ("M-y" . 'browse-kill-ring)
+	 )
+  )
+(use-package yasnippet
+  :ensure t
+  :config
+  (yas-global-mode 1)
+  )
 (use-package julia-mode
   :ensure t
   :mode "\\.jl$")
@@ -88,13 +92,19 @@
 				    () (auto-fill-mode))))
   :hook (text-mode . (lambda () (set-fill-column 100)))
   :mode ("\\.md\\'" . text-mode))
+
 ;; LaTeX
 ;; Set up zathura with synctex (that's what TeX-source-correlate-mode does
 (use-package tex
   :ensure auctex
   :hook (LaTeX-mode . TeX-source-correlate-mode)
+  :custom
+  (TeX-engine 'luatex)
+  (TeX-parse-self t)
+  (TeX-auto-save t)
+  (LaTeX-electric-left-right-brace t)
+  (TeX-electric-math `("$" . "$"))
   :config
-  (setq latex-run-command "xelatex")
   (setq TeX-view-program-selection '(((output-dvi has-no-display-manager)
 	  "dvi2tty")
 	 ((output-dvi style-pstricks)
@@ -115,7 +125,6 @@
   :ensure t
   :mode ("\\.gp\\'" . gnuplot-mode)
   :hook (gnuplot-comint-mode . (lambda ()
-				 (gnuplot-send-string-to-gnuplot "set terminal qt size 800, 600\n" "line")
 				 (gnuplot-send-string-to-gnuplot "set terminal qt size 800, 600\n" "line")
 				 ))
   )
@@ -149,6 +158,8 @@
 
 ;; My keybindings
 (keymap-global-set "C-," #'duplicate-line)
+(keymap-global-set "C-c o" #'find-file-at-point)
+(keymap-global-set "M-o" #'other-window)
 
 ;; My functions
 (defun switch-theme (theme)
