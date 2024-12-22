@@ -1,9 +1,8 @@
 ;;; odin-mode.el --- A minor mode for odin
 
-;; Author: Ethan Morgan
-;; Keywords: odin, language, languages, mode
+;; Author: Daniel Luque-Jarava
 ;; Package-Requires: ((emacs "24.1"))
-;; Homepage: https://github.com/glassofethanol/odin-mode
+;; Based on the one by Ethan MorganDan (https://github.com/glassofethanol/odin-mode)
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -231,51 +230,6 @@
   (defmacro setq-local (var val)
     `(set (make-local-variable ',var) ,val)))
 
-(defconst odin--defun-rx "\(.*\).*\{")
-
-(defmacro odin-paren-level ()
-  `(car (syntax-ppss)))
-
-(defun odin-line-is-defun ()
-  "return t if current line begins a procedure"
-  (interactive)
-  (save-excursion
-    (beginning-of-line)
-    (let (found)
-      (while (and (not (eolp)) (not found))
-        (if (looking-at odin--defun-rx)
-            (setq found t)
-          (forward-char 1)))
-      found)))
-
-(defun odin-beginning-of-defun (&optional count)
-  "Go to line on which current function starts."
-  (interactive)
-  (let ((orig-level (odin-paren-level)))
-    (while (and
-            (not (odin-line-is-defun))
-            (not (bobp))
-            (> orig-level 0))
-      (setq orig-level (odin-paren-level))
-      (while (>= (odin-paren-level) orig-level)
-        (skip-chars-backward "^{")
-        (backward-char))))
-  (if (odin-line-is-defun)
-      (beginning-of-line)))
-
-(defun odin-end-of-defun ()
-  "Go to line on which current function ends."
-  (interactive)
-  (let ((orig-level (odin-paren-level)))
-    (when (> orig-level 0)
-      (odin-beginning-of-defun)
-      (end-of-line)
-      (setq orig-level (odin-paren-level))
-      (skip-chars-forward "^}")
-      (while (>= (odin-paren-level) orig-level)
-        (skip-chars-forward "^}")
-        (forward-char)))))
-
 (defalias 'odin-parent-mode
  (if (fboundp 'prog-mode) 'prog-mode 'fundamental-mode))
 
@@ -291,8 +245,7 @@
   (setq-local comment-end "")
   (setq-local indent-line-function 'js-indent-line)
   (setq-local font-lock-defaults '(odin-font-lock-defaults))
-  (setq-local beginning-of-defun-function 'odin-beginning-of-defun)
-  (setq-local end-of-defun-function 'odin-end-of-defun)
+  (setq-local defun-prompt-regexp ".*:.*:.*\\(proc.*(.*)\\|struct\\|enum\\).*")
   (setq-local electric-indent-chars
               (append "{}():;," electric-indent-chars))
   (setq imenu-generic-expression
