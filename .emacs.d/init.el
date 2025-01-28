@@ -70,13 +70,10 @@
   )
 (use-package fasm-mode
   :mode "\\.fasm\\'")
-(use-package odin-mode
-  :bind (:map odin-mode-map
-	      ("C-c C-r" . 'odin-run-project)
-	      ("C-c C-c" . 'odin-build-project)
-	      ("C-c C-t" . 'odin-test-project)
-	      )
-  )
+(use-package odin-mode)
+(use-package jai-mode)
+(use-package simpc-mode
+  :mode ("\\.[hc]\\(pp\\)?\\'" . simpc-mode))
 (use-package smex
   :ensure t
   :bind (:map global-map
@@ -99,11 +96,11 @@
   :ensure auctex
   :hook (LaTeX-mode . TeX-source-correlate-mode)
   :custom
-  (TeX-engine 'luatex)
   (TeX-parse-self t)
   (TeX-auto-save t)
   (LaTeX-electric-left-right-brace t)
   (TeX-electric-math `("$" . "$"))
+  (TeX-master nil)
   :config
   (setq TeX-view-program-selection '(((output-dvi has-no-display-manager)
 	  "dvi2tty")
