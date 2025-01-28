@@ -30,19 +30,19 @@ foreground = '#e4e4ef'
 size = 13
 
 [font.bold]
-family = "MonaspiceArNerdFontMono"
+family = "Iosevka"
 style = "Bold"
 
 [font.bold_italic]
-family = "MonaspiceArNerdFontMono"
+family = "Iosevka"
 style = "Bold Italic"
 
 [font.italic]
-family = "MonaspiceArNerdFontMono"
+family = "Iosevka"
 style = "Italic"
 
 [font.normal]
-family = "MonaspiceArNerdFontMono"
+family = "Iosevka"
 style = "Regular"
 
 [[keyboard.bindings]]
