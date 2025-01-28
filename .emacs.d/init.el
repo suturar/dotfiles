@@ -9,12 +9,19 @@
 (setq inhibit-splash-screen t)
 (setq make-backup-files nil)
 (setq use-file-dialog nil)
+(setq-default indent-tabs-mode nil)
+(setq-default compilation-scroll-output t)
 (global-display-line-numbers-mode 1)
 (setq display-line-numbers-type 'relative)
 (setq column-number-mode t)
 (setopt use-short-answers t)
-(add-to-list 'default-frame-alist '(font . "MonaspiceArNerdFontMono-15"))
+(add-to-list 'default-frame-alist '(font . "Iosevka-15"))
 (add-to-list 'load-path (concat user-emacs-directory "local/"))
+(add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
+(setq default-input-method 'spanish-prefix)
+(setq auto-revert-verbose nil)
+(load (concat user-emacs-directory "local/make-mark-visible.el"))
+
 ;; Dired options
 (use-package dired
   :config
@@ -25,9 +32,12 @@
 	 dired-mode-map
 	 ("<mouse-2>" . 'dired-mouse-find-file)))
 (use-package cc-mode
-  :config (setq-default c-basic-offset 4))
+  :config (setq-default c-basic-offset 4)
+  )
 (use-package company
   :ensure t
+  :custom
+  (company-selection-wrap-around t)
   :hook ((prog-mode LaTeX-mode) . company-mode)
   :config (setq company-backends (delete 'company-clang company-backends))
   )
@@ -157,6 +167,9 @@
 (keymap-global-set "C-," #'duplicate-line)
 (keymap-global-set "C-c o" #'find-file-at-point)
 (keymap-global-set "M-o" #'other-window)
+(keymap-global-set "M-/" #'company-complete)
+(keymap-global-set "M-T" #'transpose-regions)
+(keymap-global-set "<f5>" #'compile)
 
 ;; My functions
 (defun switch-theme (theme)
