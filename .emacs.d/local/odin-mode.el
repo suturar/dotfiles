@@ -80,6 +80,7 @@
     "using" "inline" "no_inline"
     "size_of" "align_of" "offset_of" "type_of"
 
+    "or_return" "or_continue" "or_break" "or_else"
     "context"
     ;; "_"
 

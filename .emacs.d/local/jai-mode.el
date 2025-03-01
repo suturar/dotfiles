@@ -82,7 +82,7 @@
     "bool"))
 
 (defun jai-wrap-word-rx (s)
-  (concat "\\<" s "\\>"))
+  (concat "\\_<" s "\\_>"))
 
 (defun jai-keywords-rx (keywords)
   "build keyword regexp"
@@ -109,10 +109,10 @@
     (,(jai-keywords-rx jai-builtins) 1 font-lock-variable-name-face)
 
     ;; Hash directives
-    ("#\\w+" . font-lock-preprocessor-face)
+    ("#[[:word:]_]+" . font-lock-preprocessor-face)
 
     ;; At notes
-    ("@\\w+" . font-lock-preprocessor-face)
+    ("@[[:word:]_]+" . font-lock-preprocessor-face)
 
     ;; Strings
     ("\\\".*\\\"" . font-lock-string-face)
@@ -136,46 +136,6 @@
 
 (defmacro jai-paren-level ()
   `(car (syntax-ppss)))
-
-(defun jai-line-is-defun ()
-  "return t if current line begins a procedure"
-  (interactive)
-  (save-excursion
-    (beginning-of-line)
-    (let (found)
-      (while (and (not (eolp)) (not found))
-        (if (looking-at jai--defun-rx)
-            (setq found t)
-          (forward-char 1)))
-      found)))
-
-(defun jai-beginning-of-defun ()
-  "Go to line on which current function starts."
-  (interactive)
-  (let ((orig-level (jai-paren-level)))
-    (while (and
-            (not (jai-line-is-defun))
-            (not (bobp))
-            (> orig-level 0))
-      (setq orig-level (jai-paren-level))
-      (while (>= (jai-paren-level) orig-level)
-        (skip-chars-backward "^{")
-        (backward-char))))
-  (when (jai-line-is-defun)
-    (beginning-of-line)))
-
-(defun jai-end-of-defun ()
-  "Go to line on which current function ends."
-  (interactive)
-  (let ((orig-level (jai-paren-level)))
-    (when (> orig-level 0)
-      (jai-beginning-of-defun)
-      (end-of-line)
-      (setq orig-level (jai-paren-level))
-      (skip-chars-forward "^}")
-      (while (>= (jai-paren-level) orig-level)
-        (skip-chars-forward "^}")
-        (forward-char)))))
 
 (defalias 'jai-parent-mode
   (if (fboundp 'prog-mode) 'prog-mode 'fundamental-mode))
@@ -213,9 +173,7 @@
   (setq-local block-comment-end "*/")
   (setq-local indent-line-function 'js-indent-line)
   (setq-local font-lock-defaults '(jai-font-lock-defaults))
-  (setq-local beginning-of-defun-function 'jai-beginning-of-defun)
-  (setq-local end-of-defun-function 'jai-end-of-defun)
-
+  (setq-local defun-prompt-regexp ".*:.*:.*\\((.*)\\|struct\\|enum\\).*")  
   ;; add indent functionality to some characters
   (jai--add-self-insert-hooks)
 
