@@ -15,11 +15,12 @@
 (setq display-line-numbers-type 'relative)
 (setq column-number-mode t)
 (setopt use-short-answers t)
-(add-to-list 'default-frame-alist '(font . "Iosevka-15"))
+(add-to-list 'default-frame-alist '(font . "Iosevka-14"))
 (add-to-list 'load-path (concat user-emacs-directory "local/"))
 (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
 (setq default-input-method 'spanish-prefix)
 (setq auto-revert-verbose nil)
+(setq set-mark-command-repeat-pop t)
 (load (concat user-emacs-directory "local/make-mark-visible.el"))
 
 ;; Dired options
@@ -34,12 +35,28 @@
 (use-package cc-mode
   :config (setq-default c-basic-offset 4)
   )
+
+(use-package pyvenv
+  :ensure t
+  :config (setq pyvenv-mode-line-indicator '(pyvenv-virtual-env-name
+                                             ("pyvenv:" pyvenv-virtual-env-name)))
+  (pyvenv-mode t)
+  :hook (
+         ((pyvenv-post-activate) .
+          (lambda () (setq python-shell-interpreter (concat pyvenv-virtual-env "bin/python3"))))
+         ((pyenv-post-deactivate) .
+          (lambda () (setq python-shell-interpreter "python3")))
+         )
+  )
+
 (use-package company
   :ensure t
   :custom
   (company-selection-wrap-around t)
-  :hook ((prog-mode LaTeX-mode) . company-mode)
-  :config (setq company-backends (delete 'company-clang company-backends))
+  :config
+  (setq company-backends (delete 'company-clang company-backends))
+  (global-company-mode)
+  (setq company-idle-delay nil)
   )
 (use-package browse-kill-ring
   :ensure t
@@ -63,6 +80,7 @@
 (use-package gruber-darker-theme
   :ensure t
   :init (load-theme 'gruber-darker t))
+(use-package solarized-theme :ensure t)
 (use-package eat
   :ensure t
   :bind( :map eat-mode-map
@@ -84,19 +102,11 @@
 (use-package jai-mode)
 (use-package simpc-mode
   :mode ("\\.[hc]\\(pp\\)?\\'" . simpc-mode))
-(use-package smex
-  :ensure t
-  :bind (:map global-map
-	      ("M-x" . 'smex)
-	      ("M-X" . 'smex-major-mode-commands)
-	      ("C-c C-c M-x" . 'execute-extended-command)
-	      )
-  )
+
 (use-package image-mode
   :hook (image-mode . auto-revert-mode))
 (use-package text-mode
-  :hook (text-mode . (lambda () (if (equal major-mode 'LaTeX-mode)
-				    () (auto-fill-mode))))
+  :hook (text-mode . auto-fill-mode)
   :hook (text-mode . (lambda () (set-fill-column 100)))
   :mode ("\\.md\\'" . text-mode))
 
@@ -121,6 +131,20 @@
 	 (output-html "xdg-open"))
 	)
   )
+
+;; (defun cdlatex-indent-maybe ()
+;;   (when (or (bolp) (looking-back "^[ \t]+") (region-active-p))
+;;     (LaTeX-indent-line) t))
+;; (use-package cdlatex
+;;   :ensure t
+;;   :init
+;;   ;; (setq cdlatex-takeover-parenthesis nil)
+;;   (setq cdlatex-math-modify-prefix nil)
+;;   :hook
+;;   ;; (cdlatex-tab . cdlatex-indent-maybe)
+;;   ;; (LaTeX-mode . cdlatex-mode)
+;;   (org-mode . #'turn-on-org-cdlatex))
+  
 ;; Magit
 (use-package magit
   :ensure t)
@@ -139,10 +163,51 @@
 
 (use-package org
   :config
-  (setq org-latex-compiler "xelatex")
+  (setq org-latex-compiler "lualatex")
   (add-to-list 'org-latex-packages-alist '("utf8x" "inputenc"))
   (add-to-list 'org-latex-packages-alist '("" "libertine"))
   (add-to-list 'org-latex-packages-alist '("" "unicode-math"))
+  (setq org-highlight-latex-and-related '(native entities))
+  :hook
+  (org-mode . turn-on-org-cdlatex)
+  )
+(use-package cdlatex :ensure t)
+(use-package counsel
+  :ensure t
+  :config
+  (ivy-mode)
+  (recentf-mode)
+  :bind (:map global-map
+              ("M-x" . counsel-M-x)
+              ("C-x C-r" . counsel-recentf)
+              ("C-x C-f" . counsel-find-file)
+              ))
+(use-package ivy-bibtex :ensure t
+  :config
+  (setq bibtex-completion-pdf-open-function
+        (lambda (fpath)
+          (call-process "zathura" nil 0 nil fpath)
+          )
+        )
+  (setq bibtex-completion-pdf-field "file")
+  )
+
+(use-package org-ref
+  :ensure t
+  :after org
+  :init
+  (setq org-ref-insert-label-function 'org-ref-insert-label-link)
+  (setq org-ref-insert-ref-function 'org-ref-insert-ref-link)
+  (setq org-latex-prefer-user-labels t)
+  (require 'bibtex)
+  (require 'org-ref-ivy)
+  :bind (:map org-mode-map
+              ("C-c ]" . org-ref-insert-link)
+              )
+  :hook (org-mode . (lambda ()
+                      (setq-local bibtex-completion-bibliography (org-ref-find-bibliography))
+                      (setq-local bibtex-completion-library-path ".")
+                      ))
   )
 
 (use-package move-dup
@@ -155,9 +220,6 @@
 ;; Tramp
 (setq tramp-auto-save-directory "~/.emacs.d/tramp-auto-save/")
 
-;; Ido-mode
-(ido-mode t)
-(setq ido-auto-merge-work-directories-length 0)
 
 ;; Enable Disabled commands
 (dolist (command '(upcase-region narrow-to-region))
@@ -165,11 +227,14 @@
 
 ;; My keybindings
 (keymap-global-set "C-," #'duplicate-line)
+(keymap-global-set "C-c C-o" #'find-file-at-point)
 (keymap-global-set "C-c o" #'find-file-at-point)
 (keymap-global-set "M-o" #'other-window)
+(keymap-global-set "M-O" #'window-swap-states)
 (keymap-global-set "M-/" #'company-complete)
 (keymap-global-set "M-T" #'transpose-regions)
 (keymap-global-set "<f5>" #'compile)
+(keymap-global-set "C-x ;" #'indent-for-comment)
 
 ;; My functions
 (defun switch-theme (theme)
