@@ -7,6 +7,7 @@ set vertical-center true
 set synctex true
 set font "FreeSans bold 12"
 set zoom-step 3
+set scroll-page-aware true
 
 map [normal] <C-b> scroll left
 map [normal] <C-n> scroll down
@@ -48,9 +49,9 @@ map [normal] <C-v> scroll full-down
 map [normal] <Return> scroll full-down
 map [normal] <A-v> scroll full-up
 map [normal] <C-e> scroll full-right
-map [normal] <Space> scroll full-down
+map [normal] <Space> navigate next
 map [normal] <C-h> scroll full-up
-map [normal] <BackSpace> scroll full-up
+map [normal] <BackSpace> navigate previous
 map [normal] <S-Space> scroll full-up
 map [normal] l jumplist backward
 map [normal] r jumplist forward
