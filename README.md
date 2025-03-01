@@ -4,12 +4,6 @@ Managed with GNU stow
 - Dependencies needed for install are:
   * `stow`
   * `git`
-- Configuration is given for:
-  * `alacritty`
-  * `fish`
-  * `helix`
-  * `emacs`
-  * `i3wm`
 - Extra recommended packages
   * `gf2`: gdb frontend
 
