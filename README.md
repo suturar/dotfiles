@@ -3,27 +3,10 @@
 Managed with GNU stow
 - Dependencies needed for install are:
   * `stow`
+  * `fish`
   * `git`
-- Extra recommended packages
-  * `gf2`: gdb frontend
 
 ## Instructions for cloning
-First go to home folder and create a "dotfiles" folder
 
-```bash
-$ cd && mkdir dotfiles && cd dotfiles
-```
-Now clone this repo
-
-```bash
-$ git clone
-```
-
-and finally stow
-```bash
-$ stow .
-```
-If there are any conflicting files delete them from your original location
-or use `stow . --adopt` to override mine.
-
+Clone the repo and run `deploy.fish` after stating in `MANIFEST` which packages to install.
 
