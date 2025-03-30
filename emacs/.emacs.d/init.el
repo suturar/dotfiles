@@ -11,27 +11,30 @@
 (setq use-file-dialog nil)
 (setq-default indent-tabs-mode nil)
 (setq-default compilation-scroll-output t)
+(setq compilation-max-output-line-length nil)
 (global-display-line-numbers-mode 1)
 (setq display-line-numbers-type 'relative)
 (setq column-number-mode t)
 (setopt use-short-answers t)
-(add-to-list 'default-frame-alist '(font . "Iosevka-14"))
+(add-to-list 'default-frame-alist '(font . "Iosevka-20"))
 (add-to-list 'load-path (concat user-emacs-directory "local/"))
 (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
 (setq default-input-method 'spanish-prefix)
 (setq auto-revert-verbose nil)
 (setq set-mark-command-repeat-pop t)
-(load (concat user-emacs-directory "local/make-mark-visible.el"))
+;; (load (concat user-emacs-directory "local/make-mark-visible.el"))
 
 ;; Dired options
 (use-package dired
   :config
   (setq dired-listing-switches "-alh")
+  (setq dired-dwim-target t)
   (add-to-list 'dired-guess-shell-alist-user '("\\.pdf\\'" "zathura"))
   :hook ((dired-mode) . auto-revert-mode)
   :bind (:map
 	 dired-mode-map
 	 ("<mouse-2>" . 'dired-mouse-find-file)))
+
 (use-package cc-mode
   :config (setq-default c-basic-offset 4)
   )
@@ -112,7 +115,7 @@
 
 ;; LaTeX
 ;; Set up zathura with synctex (that's what TeX-source-correlate-mode does
-(use-package tex
+(use-package latex
   :ensure auctex
   :hook (LaTeX-mode . TeX-source-correlate-mode)
   :custom
@@ -123,27 +126,32 @@
   (TeX-master nil)
   :config
   (setq TeX-view-program-selection '(((output-dvi has-no-display-manager)
-	  "dvi2tty")
-	 ((output-dvi style-pstricks)
-	  "dvips and gv")
-	 (output-dvi "xdvi")
-	 (output-pdf "Zathura")
-	 (output-html "xdg-open"))
+	                              "dvi2tty")
+	                             ((output-dvi style-pstricks)
+	                              "dvips and gv")
+	                             (output-dvi "xdvi")
+	                             (output-pdf "Zathura")
+	                             (output-html "xdg-open"))
 	)
+  :bind (:map
+         LaTeX-mode-map
+	 ("C-c ]" . ivy-bibtex-with-local-bibliography)
+         )
   )
 
-;; (defun cdlatex-indent-maybe ()
-;;   (when (or (bolp) (looking-back "^[ \t]+") (region-active-p))
-;;     (LaTeX-indent-line) t))
-;; (use-package cdlatex
-;;   :ensure t
-;;   :init
-;;   ;; (setq cdlatex-takeover-parenthesis nil)
-;;   (setq cdlatex-math-modify-prefix nil)
-;;   :hook
-;;   ;; (cdlatex-tab . cdlatex-indent-maybe)
-;;   ;; (LaTeX-mode . cdlatex-mode)
-;;   (org-mode . #'turn-on-org-cdlatex))
+(defun cdlatex-indent-maybe ()
+  (when (or (bolp) (looking-back "^[ \t]+") (region-active-p))
+    (LaTeX-indent-line) t))
+(use-package cdlatex
+  :ensure t
+  :init
+  (setq cdlatex-takeover-parenthesis nil)
+  ;; (setq cdlatex-math-modify-prefix nil)
+  :hook
+  (cdlatex-tab . cdlatex-indent-maybe)
+  (LaTeX-mode . cdlatex-mode)
+  (org-mode . #'turn-on-org-cdlatex)
+)
   
 ;; Magit
 (use-package magit
@@ -163,13 +171,31 @@
 
 (use-package org
   :config
-  (setq org-latex-compiler "lualatex")
-  (add-to-list 'org-latex-packages-alist '("utf8x" "inputenc"))
-  (add-to-list 'org-latex-packages-alist '("" "libertine"))
-  (add-to-list 'org-latex-packages-alist '("" "unicode-math"))
   (setq org-highlight-latex-and-related '(native entities))
+  (setq org-format-latex-options '(:foreground default :background default :scale 2.5 :html-foreground
+                                               "Black" :html-background "Transparent" :html-scale 1.0
+                                               :matchers ("begin" "$1" "$" "$$" "\\(" "\\[")))
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((gnuplot . t)))
+  (setq org-capture-templates
+        '(
+          ("t" "General TODO"
+           entry (file+headline "~/org/todos.org" "General Tasks")
+           "* TODO %? \n:Created: %T\n "
+           )
+          ("n" "Note"
+           entry (file+headline "~/org/notes.org" "Random Notes")
+           "** %?"
+           :empty-lines 0)
+
+          ("s" "Slipbox"
+           entry (file "~/org/org-roam/inbox.org")
+          "* %?\n")
+          ))
+  (setq org-agenda-files '("~/org"))
   :hook
-  (org-mode . turn-on-org-cdlatex)
+  (org-mode . (lambda () (local-unset-key (kbd "C-,"))))
   )
 (use-package cdlatex :ensure t)
 (use-package counsel
@@ -177,11 +203,15 @@
   :config
   (ivy-mode)
   (recentf-mode)
+  (setq recentf-max-saved-items 100)
   :bind (:map global-map
               ("M-x" . counsel-M-x)
               ("C-x C-r" . counsel-recentf)
               ("C-x C-f" . counsel-find-file)
-              ))
+              )
+  :hook (buffer-list-update . recentf-track-opened-file)
+  )
+
 (use-package ivy-bibtex :ensure t
   :config
   (setq bibtex-completion-pdf-open-function
@@ -190,7 +220,35 @@
           )
         )
   (setq bibtex-completion-pdf-field "file")
+  (setq bibtex-completion-bibliography '("~/org/org-roam/Bibliography.bib"))
   )
+
+(use-package org-roam
+  :ensure t
+  :after org
+  :init
+  (setq org-roam-directory "~/org/org-roam")
+  (setq org-roam-capture-templates
+      '(("m" "main" plain
+         "%?"
+         :if-new (file+head "main/${slug}.org"
+                            "#+title: ${title}\n")
+         :immediate-finish t
+         :unnarrowed t)
+        ("r" "reference" plain "%?"
+         :if-new
+         (file+head "reference/${title}.org" "#+title: ${title}\n")
+         :immediate-finish t
+         :unnarrowed t)
+        ("a" "article" plain "%?"
+         :if-new
+         (file+head "articles/${title}.org" "#+title: ${title}\n#+filetags: :article:\n")
+         :immediate-finish t
+         :unnarrowed t)))
+  (setq org-roam-node-display-template
+      (concat "${type:15} ${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+  (org-roam-db-autosync-mode)
+)
 
 (use-package org-ref
   :ensure t
@@ -199,6 +257,7 @@
   (setq org-ref-insert-label-function 'org-ref-insert-label-link)
   (setq org-ref-insert-ref-function 'org-ref-insert-ref-link)
   (setq org-latex-prefer-user-labels t)
+  (setq org-latex-pdf-process '("latexmk -f -bibtex -pdf -%latex -interaction=nonstopmode -output-directory=%o %f"))
   (require 'bibtex)
   (require 'org-ref-ivy)
   :bind (:map org-mode-map
@@ -236,6 +295,17 @@
 (keymap-global-set "<f5>" #'compile)
 (keymap-global-set "C-x ;" #'indent-for-comment)
 
+(keymap-global-set "C-c a" #'org-agenda)
+(keymap-global-set "C-c c" #'org-capture)
+(keymap-global-set "M-u" #'upcase-dwim)
+(keymap-global-set "M-l" #'downcase-dwim)
+(keymap-global-set "M-c" #'capitalize-dwim)
+
+(global-set-key (kbd "C-M-i") #'org-roam-node-insert)
+(global-set-key (kbd "C-M-o") #'org-roam-node-find)
+(global-set-key (kbd "C-M-r") #'org-roam-buffer-toggle)
+
+
 ;; My functions
 (defun switch-theme (theme)
   ;; This interactive call is taken from `load-theme'
@@ -247,3 +317,11 @@
   (mapcar #'disable-theme custom-enabled-themes)
   (load-theme theme t))
 
+(cl-defmethod org-roam-node-type ((node org-roam-node))
+  "Return the TYPE of NODE."
+  (condition-case nil
+      (file-name-nondirectory
+       (directory-file-name
+        (file-name-directory
+         (file-relative-name (org-roam-node-file node) org-roam-directory))))
+    (error "")))
