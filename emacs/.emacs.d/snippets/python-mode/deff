@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: def function(...):
+# key: deff
+# group: definitions
+# expand-env: ((yas-indent-line 'fixed))
+# --
+def ${1:funname}(${2:arg}):
+    $0
+#end def $1()
