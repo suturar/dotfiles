@@ -7,64 +7,71 @@
 # If the above line is not correctly displayed, fix your editor first!
 
 general {
-        colors = true
-        interval = 5
+colors = true
+interval = 5
 }
 
 # order += "ipv6"
+
 order += "wireless _first_"
 order += "ethernet _first_"
+order += "read_file vpn"
 order += "disk /"
-order += "disk /mnt/Archivo/"
+order += "disk /mnt/archive/"
 order += "load"
 order += "memory"
 order += "battery all"
 order += "volume master"
 order += "tztime local"
 
+read_file vpn {
+format = "vpn(%content)"
+format_bad = ""
+path = "/sys/class/net/tun0/operstate"
+}
 
 wireless _first_ {
-        format_up = "W: (%quality at %essid) %ip"
-        format_down = "W: down"
+format_up = "W: (%quality at %essid) %ip"
+format_down = "W: down"
 }
 
 ethernet _first_ {
-        format_up = "E: %ip (%speed)"
-        format_down = "E: down"
+format_up = "E: %ip (%speed)"
+format_down = "E: down"
 }
 
 battery all {
-        format = "%status %percentage %remaining"
-	last_full_capacity = true
-	integer_battery_capacity = true
+format = "%status %percentage %remaining"
+last_full_capacity = true
+integer_battery_capacity = true
 }
 
 disk "/" {
-        format = "Principal: %avail"
+format = "main: %avail"
 }
 
-disk "/mnt/Archivo/" {
-     format = "Archivo: %avail"
+disk "/mnt/archive/" {
+format = "archive: %avail"
 }
 
 load {
-        format = "%1min"
+format = "%1min"
 }
 
 memory {
-        format = "%used | %available"
-        threshold_degraded = "1G"
-        format_degraded = "MEMORY < %available"
+format = "%used | %available"
+threshold_degraded = "1G"
+format_degraded = "MEMORY < %available"
 }
 
 volume master {
-        format = "♪: %volume" 
-        format_muted = "♪ (muted): %volume" 
-        device = "default"
-        mixer = "Master"
-        mixer_idx = 0
+format = "♪: %volume" 
+format_muted = "♪ (muted): %volume" 
+device = "default"
+mixer = "Master"
+mixer_idx = 0
 }
 
 tztime local {
-        format = "%Y-%m-%d %H:%M:%S"
+format = "%Y-%m-%d %H:%M:%S"
 }

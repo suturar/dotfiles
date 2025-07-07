@@ -13,7 +13,7 @@ set $mod Mod4
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
-font pango:monospace 10
+font pango:Comic Code 16
 
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
@@ -53,6 +53,8 @@ bindsym Print exec flameshot gui
 # Use brightnessctl to adjust backlight value
 bindsym XF86MonBrightnessUp exec brightnessctl set 5%+
 bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
+bindsym XF86TouchpadToggle exec synclient TouchpadOff=$(synclient -l | grep -c 'TouchpadOff.*=.*0')
+
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
@@ -69,7 +71,7 @@ bindsym $mod+Return exec alacritty
 bindsym $mod+Shift+q kill
 
 # start dmenu (a program launcher)
-bindsym $mod+d exec --no-startup-id dmenu_run
+bindsym $mod+d exec --no-startup-id dmenu_run -fn Iosevka-24
 # A more modern dmenu replacement is rofi:
 # bindcode $mod+40 exec "rofi -modi drun,run -show drun"
 # There also is i3-dmenu-desktop which only displays applications shipping a
@@ -101,10 +103,10 @@ bindsym $mod+Shift+Up move up
 bindsym $mod+Shift+Right move right
 
 # Move between monitors
-bindsym $mod+Shift+bracketleft move workspace to output left
-bindsym $mod+Shift+bracketright move workspace to output right
-bindsym $mod+bracketleft focus output left
-bindsym $mod+bracketright focus output right
+bindsym $mod+Shift+bracketleft move workspace to output primary
+bindsym $mod+Shift+bracketright move workspace to output nonprimary
+bindsym $mod+bracketleft focus output primary
+bindsym $mod+bracketright focus output nonprimary
 
 # split in horizontal orientation
 bindsym $mod+h split h
