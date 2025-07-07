@@ -16,13 +16,23 @@
 (setq display-line-numbers-type 'relative)
 (setq column-number-mode t)
 (setopt use-short-answers t)
-(add-to-list 'default-frame-alist '(font . "Iosevka-20"))
+(add-to-list 'default-frame-alist '(font . "Comic Code-16"))
 (add-to-list 'load-path (concat user-emacs-directory "local/"))
 (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
 (setq default-input-method 'spanish-prefix)
 (setq auto-revert-verbose nil)
 (setq set-mark-command-repeat-pop t)
+(global-so-long-mode 1)
 ;; (load (concat user-emacs-directory "local/make-mark-visible.el"))
+
+;; WARNING: This is something I should take a closer look into
+(setq
+ display-buffer-alist
+ '((".*"
+    (display-buffer-reuse-window
+     display-buffer-in-previous-window)
+    (reusable-frames . t))))
+
 
 ;; Dired options
 (use-package dired
@@ -44,12 +54,30 @@
   :config (setq pyvenv-mode-line-indicator '(pyvenv-virtual-env-name
                                              ("pyvenv:" pyvenv-virtual-env-name)))
   (pyvenv-mode t)
+  (setq python-shell-setup-codes '("from importlib import reload"))
+  (setq python-shell-font-lock-enable nil)
   :hook (
-         ((pyvenv-post-activate) .
-          (lambda () (setq python-shell-interpreter (concat pyvenv-virtual-env "bin/python3"))))
-         ((pyenv-post-deactivate) .
-          (lambda () (setq python-shell-interpreter "python3")))
+         (pyvenv-post-activate .
+          (lambda () (setq python-shell-interpreter (concat pyvenv-virtual-env "bin/python"))))
+         (pyenv-post-deactivate .
+          (lambda () (setq python-shell-interpreter "python")))
          )
+  )
+
+(defun python-send-paragraph () (interactive)
+       (save-excursion
+         (mark-paragraph)
+         (command-execute 'python-shell-send-region)))
+(use-package python
+  :ensure t
+  :bind (:map python-mode-map
+              ("C-c h" . python-send-paragraph)
+              ("C-c r" . python-shell-restart)
+              ("C-c C-k" . kill-compilation)
+              :map inferior-python-mode-map
+              ("C-c r" . python-shell-restart)
+              ("C-c C-k" . kill-compilation)
+              )
   )
 
 (use-package company
@@ -117,7 +145,9 @@
 ;; Set up zathura with synctex (that's what TeX-source-correlate-mode does
 (use-package latex
   :ensure auctex
-  :hook (LaTeX-mode . TeX-source-correlate-mode)
+  :hook
+  (LaTeX-mode . TeX-source-correlate-mode)
+  (LaTeX-mode . (lambda () (local-unset-key (kbd "C-c ]"))))
   :custom
   (TeX-parse-self t)
   (TeX-auto-save t)
@@ -125,6 +155,11 @@
   (TeX-electric-math `("$" . "$"))
   (TeX-master nil)
   :config
+  (TeX-add-style-hook
+   "latex"
+   (lambda ()
+     (TeX-add-symbols
+      '("eqref" TeX-arg-ref))))
   (setq TeX-view-program-selection '(((output-dvi has-no-display-manager)
 	                              "dvi2tty")
 	                             ((output-dvi style-pstricks)
@@ -133,10 +168,6 @@
 	                             (output-pdf "Zathura")
 	                             (output-html "xdg-open"))
 	)
-  :bind (:map
-         LaTeX-mode-map
-	 ("C-c ]" . ivy-bibtex-with-local-bibliography)
-         )
   )
 
 (defun cdlatex-indent-maybe ()
@@ -150,7 +181,7 @@
   :hook
   (cdlatex-tab . cdlatex-indent-maybe)
   (LaTeX-mode . cdlatex-mode)
-  (org-mode . #'turn-on-org-cdlatex)
+  (org-mode . org-cdlatex-mode)
 )
   
 ;; Magit
@@ -175,6 +206,25 @@
   (setq org-format-latex-options '(:foreground default :background default :scale 2.5 :html-foreground
                                                "Black" :html-background "Transparent" :html-scale 1.0
                                                :matchers ("begin" "$1" "$" "$$" "\\(" "\\[")))
+  (setq org-format-latex-header "\\documentclass{article}
+\\usepackage[usenames]{color}
+[DEFAULT-PACKAGES]
+[PACKAGES]
+\\pagestyle{empty}             % do not remove
+% The settings below are copied from fullpage.sty
+\\setlength{\\textwidth}{\\paperwidth}
+\\addtolength{\\textwidth}{-3cm}
+\\setlength{\\oddsidemargin}{1.5cm}
+\\addtolength{\\oddsidemargin}{-2.54cm}
+\\setlength{\\evensidemargin}{\\oddsidemargin}
+\\setlength{\\textheight}{\\paperheight}
+\\addtolength{\\textheight}{-\\headheight}
+\\addtolength{\\textheight}{-\\headsep}
+\\addtolength{\\textheight}{-\\footskip}
+\\addtolength{\\textheight}{-3cm}
+\\setlength{\\topmargin}{1.5cm}
+\\addtolength{\\topmargin}{-2.54cm}
+\\newcommand{\\dd}{\\text{d}}")
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((gnuplot . t)))
@@ -197,7 +247,6 @@
   :hook
   (org-mode . (lambda () (local-unset-key (kbd "C-,"))))
   )
-(use-package cdlatex :ensure t)
 (use-package counsel
   :ensure t
   :config
@@ -221,6 +270,9 @@
         )
   (setq bibtex-completion-pdf-field "file")
   (setq bibtex-completion-bibliography '("~/org/org-roam/Bibliography.bib"))
+  :bind (
+	 ("C-c ]" . ivy-bibtex-with-local-bibliography)
+         )
   )
 
 (use-package org-roam
@@ -304,7 +356,6 @@
 (global-set-key (kbd "C-M-i") #'org-roam-node-insert)
 (global-set-key (kbd "C-M-o") #'org-roam-node-find)
 (global-set-key (kbd "C-M-r") #'org-roam-buffer-toggle)
-
 
 ;; My functions
 (defun switch-theme (theme)
