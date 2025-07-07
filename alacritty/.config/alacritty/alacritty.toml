@@ -27,22 +27,22 @@ background = '#181818'
 foreground = '#e4e4ef'
 
 [font]
-size = 13
+size = 10
 
 [font.bold]
-family = "Iosevka"
+family = "Comic Code"
 style = "Bold"
 
 [font.bold_italic]
-family = "Iosevka"
+family = "Comic Code"
 style = "Bold Italic"
 
 [font.italic]
-family = "Iosevka"
+family = "Comic Code"
 style = "Italic"
 
 [font.normal]
-family = "Iosevka"
+family = "Comic Code"
 style = "Regular"
 
 [[keyboard.bindings]]
