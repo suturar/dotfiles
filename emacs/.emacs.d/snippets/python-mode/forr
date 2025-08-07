@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: for in range
+# key: forr
+# expand-env: ((yas-indent-line 'fixed))
+# --
+for ${1:it} in range(${2:0}, ${3:...}):
+    $0
+#end for

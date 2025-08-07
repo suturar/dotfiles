@@ -19,10 +19,14 @@
 (add-to-list 'default-frame-alist '(font . "Comic Code-16"))
 (add-to-list 'load-path (concat user-emacs-directory "local/"))
 (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
+(add-hook 'prog-mode-hook (lambda () (setq show-trailing-whitespace t)))
 (setq default-input-method 'spanish-prefix)
 (setq auto-revert-verbose nil)
 (setq set-mark-command-repeat-pop t)
 (global-so-long-mode 1)
+(setq enable-recursive-minibuffers t)
+(minibuffer-depth-indicate-mode t)
+
 ;; (load (concat user-emacs-directory "local/make-mark-visible.el"))
 
 ;; WARNING: This is something I should take a closer look into
@@ -32,7 +36,10 @@
     (display-buffer-reuse-window
      display-buffer-in-previous-window)
     (reusable-frames . t))))
-
+;; THEMES
+(use-package ef-themes
+  :ensure t
+  :init (load-theme 'ef-autumn t))
 
 ;; Dired options
 (use-package dired
@@ -49,13 +56,14 @@
   :config (setq-default c-basic-offset 4)
   )
 
+(use-package web-mode
+  :ensure t)
+
 (use-package pyvenv
   :ensure t
   :config (setq pyvenv-mode-line-indicator '(pyvenv-virtual-env-name
                                              ("pyvenv:" pyvenv-virtual-env-name)))
   (pyvenv-mode t)
-  (setq python-shell-setup-codes '("from importlib import reload"))
-  (setq python-shell-font-lock-enable nil)
   :hook (
          (pyvenv-post-activate .
           (lambda () (setq python-shell-interpreter (concat pyvenv-virtual-env "bin/python"))))
@@ -70,24 +78,32 @@
          (command-execute 'python-shell-send-region)))
 (use-package python
   :ensure t
+  :config
+  (setq python-shell-setup-codes '("from importlib import reload"))
+  (setq python-shell-font-lock-enable nil)
   :bind (:map python-mode-map
               ("C-c h" . python-send-paragraph)
               ("C-c r" . python-shell-restart)
-              ("C-c C-k" . kill-compilation)
               :map inferior-python-mode-map
               ("C-c r" . python-shell-restart)
-              ("C-c C-k" . kill-compilation)
               )
   )
-
+(use-package comint
+  :bind (:map comint-mode-map
+              ("C-c C-k" . kill-compilation))
+  )
+(use-package compilation-shell-minor-mode
+  :bind (:map compilation-shell-minor-mode-map
+              ("M-g" . recompile)))
 (use-package company
   :ensure t
   :custom
   (company-selection-wrap-around t)
+  (company-idle-delay)
+  (company-backends (delete 'company-clang company-backends))
+  (company-require-match nil)
   :config
-  (setq company-backends (delete 'company-clang company-backends))
   (global-company-mode)
-  (setq company-idle-delay nil)
   )
 (use-package browse-kill-ring
   :ensure t
@@ -108,9 +124,9 @@
   :hook (julia-mode . julia-repl-mode)
   :init (setenv "JULIA_NUM_THREADS" "8")
   :config (julia-repl-set-terminal-backend 'eat))
-(use-package gruber-darker-theme
+(use-package ef-themes
   :ensure t
-  :init (load-theme 'gruber-darker t))
+  :init (load-theme 'ef-autumn t))
 (use-package solarized-theme :ensure t)
 (use-package eat
   :ensure t
@@ -148,15 +164,39 @@
   :hook
   (LaTeX-mode . TeX-source-correlate-mode)
   (LaTeX-mode . (lambda () (local-unset-key (kbd "C-c ]"))))
+  (LaTeX-mode . (lambda () (setq auto-fill-function 'seth-LaTeX-autofill-function)))
   :custom
   (TeX-parse-self t)
   (TeX-auto-save t)
   (LaTeX-electric-left-right-brace t)
   (TeX-electric-math `("$" . "$"))
   (TeX-master nil)
+  (TeX-engine 'luatex)
   :config
+  (defvar seth-LaTeX-no-autofill-enviroments
+    '("equation", "equation*")
+    "List of LaTeX enviroments in which auto-fill will not be
+performed whether auto-fill-mode is active or not, this property is
+inherited to enviroments within this one")
+  (defun seth-LaTeX-autofill-function ()
+    "We first check whether we are inside of an enviroment listed in
+'seth-LaTeX-no-autofill-enviroments' and do nothning if that's the
+case. Otherwise call 'do-auto-fill'."
+    (let ((do-fill t)
+          (current-env "")
+          (level 0))
+      (while (and do-fill (not (string-equal current-env "document")))
+        (setq level (1+ level))
+        (setq current-env (LaTeX-current-environment level))
+        (setq do-fill
+              (not
+               (member current-env seth-LaTeX-no-autofill-enviroments)))
+        )
+      (when do-fill (do-auto-fill))
+      )
+    )
   (TeX-add-style-hook
-   "latex"
+   "LATEX"
    (lambda ()
      (TeX-add-symbols
       '("eqref" TeX-arg-ref))))
@@ -353,9 +393,11 @@
 (keymap-global-set "M-l" #'downcase-dwim)
 (keymap-global-set "M-c" #'capitalize-dwim)
 
-(global-set-key (kbd "C-M-i") #'org-roam-node-insert)
-(global-set-key (kbd "C-M-o") #'org-roam-node-find)
-(global-set-key (kbd "C-M-r") #'org-roam-buffer-toggle)
+(keymap-global-set "C-M-i" #'org-roam-node-insert)
+(keymap-global-set "C-M-o" #'org-roam-node-find)
+(keymap-global-set "C-M-r" #'org-roam-buffer-toggle)
+(keymap-global-set "M-p" #'scroll-down-line)
+(keymap-global-set "M-n" #'scroll-up-line)
 
 ;; My functions
 (defun switch-theme (theme)
@@ -376,3 +418,26 @@
         (file-name-directory
          (file-relative-name (org-roam-node-file node) org-roam-directory))))
     (error "")))
+(defun seth-insert-week-month-year (arg)
+  (interactive)
+  (insert (format-time-string "Week #%V of %Y (%B)")))
+(defun seth-insert-date (arg)
+  (interactive)
+  (insert (format-time-string "%d-%m-%Y" )))
+
+(defun seth-comment-header (header)
+  (interactive "sheader-text: ")
+  (setq string-of-equals (mapconcat
+                          'identity
+                          (mapcar (lambda (c) "=") header)
+                          ""
+                          ))
+  (comment-indent)
+  (insert string-of-equals)
+  (comment-indent-new-line)
+  (insert header)
+  (comment-indent-new-line)
+  (insert string-of-equals)
+  (newline-and-indent)
+  )
+
