@@ -2,11 +2,10 @@
 
 Managed with GNU stow
 - Dependencies needed for install are:
-  * `stow`
-  * `fish`
+  * `perl`
   * `git`
 
 ## Instructions for cloning
 
-Clone the repo and run `deploy.fish` after stating in `MANIFEST` which packages to install.
+Clone the repo and run `shelf.pl` after stating in `MANIFEST` which packages to install.
 
