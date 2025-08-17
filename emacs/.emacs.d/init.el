@@ -37,9 +37,11 @@
      display-buffer-in-previous-window)
     (reusable-frames . t))))
 ;; THEMES
-(use-package ef-themes
+(use-package gruber-darker-theme
   :ensure t
-  :init (load-theme 'ef-autumn t))
+  :init (load-theme 'gruber-darker t))
+(use-package ef-themes  :ensure t)
+(use-package solarized-theme :ensure t)
 
 ;; Dired options
 (use-package dired
@@ -100,9 +102,9 @@
   :custom
   (company-selection-wrap-around t)
   (company-idle-delay)
-  (company-backends (delete 'company-clang company-backends))
   (company-require-match nil)
   :config
+  (setq company-backends (delete 'company-clang company-backends))
   (global-company-mode)
   )
 (use-package browse-kill-ring
@@ -124,10 +126,6 @@
   :hook (julia-mode . julia-repl-mode)
   :init (setenv "JULIA_NUM_THREADS" "8")
   :config (julia-repl-set-terminal-backend 'eat))
-(use-package ef-themes
-  :ensure t
-  :init (load-theme 'ef-autumn t))
-(use-package solarized-theme :ensure t)
 (use-package eat
   :ensure t
   :bind( :map eat-mode-map
@@ -385,6 +383,7 @@ case. Otherwise call 'do-auto-fill'."
 (keymap-global-set "M-/" #'company-complete)
 (keymap-global-set "M-T" #'transpose-regions)
 (keymap-global-set "<f5>" #'compile)
+(keymap-global-set "M-<f5>" #'recompile)
 (keymap-global-set "C-x ;" #'indent-for-comment)
 
 (keymap-global-set "C-c a" #'org-agenda)
