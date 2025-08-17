@@ -1,7 +1,39 @@
-;; jai-mode.el - very basic jai mode
+;;; jai-mode.el --- Major mode for JAI  -*- lexical-binding: t; -*-
+
+;; Copyright (C) 2015-2023  Kristoffer Grönlund
+
+;; Author: Kristoffer Grönlund <k@ziran.se>
+;; Maintainer: Kristoffer Grönlund <k@ziran.se>
+;; URL: https://github.com/krig/jai-mode
+;; Version: 0.0.1
+;; Package-Requires: ((emacs "26.1"))
+;; Keywords: languages
+
+;; This file is not part of GNU Emacs.
+
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+;;; Commentary:
+;;
+;; Major mdoe for JAI
+;;
+
+;;; Code:
 
 (require 'rx)
 (require 'js)
+(require 'compile)
 
 (defconst jai-mode-syntax-table
   (let ((table (make-syntax-table)))
@@ -9,7 +41,6 @@
     (modify-syntax-entry ?\\ "\\" table)
 
     ;; additional symbols
-    ;; (modify-syntax-entry ?_ "w" table)
 
     (modify-syntax-entry ?' "." table)
     (modify-syntax-entry ?: "." table)
@@ -20,7 +51,6 @@
     (modify-syntax-entry ?|  "." table)
     (modify-syntax-entry ?^  "." table)
     (modify-syntax-entry ?!  "." table)
-    (modify-syntax-entry ?$  "/" table)
     (modify-syntax-entry ?=  "." table)
     (modify-syntax-entry ?<  "." table)
     (modify-syntax-entry ?>  "." table)
@@ -35,17 +65,14 @@
     table))
 
 (defconst jai-builtins
-  '("cast" "it" "it_index" "type_info" "size_of"))
+  '("it" "it_index"))
 
 (defconst jai-keywords
-  '("if" "ifx" "else" "then" "while" "for" "switch" "case" "struct"
-  "enum" "return" "remove" "continue" "break" "defer" "inline"
-  "no_inline" "using" "code_of" "initializer_of" "size_of" "type_of"
-  "cast" "type_info" "null" "true" "false" "xx" "context" "operator"
-  "push_context" "is_constant" "enum_flags" "union" "interface"))
-
-(defconst jai-constants
-  '("null" "true" "false"))
+  '("if" "ifx" "else" "then" "while" "for" "switch" "case" "struct" "enum"
+    "return" "remove" "continue" "break" "defer" "inline" "no_inline"
+    "using" "code_of" "initializer_of" "size_of" "type_of" "cast"  "type_info"
+    "null" "true" "false" "xx" "context" "operator" "push_context" "is_constant"
+    "enum_flags" "union" "interface"))
 
 (defconst jai-typenames
   '("int" "u64" "u32" "u16" "u8"
@@ -78,29 +105,31 @@
          (inside (eq t (nth 3 ppss)))
          (start-pos (nth 8 ppss))
          (tag (get-text-property start-pos 'here-string-marker)))
-    (when (re-search-forward (concat "^" (regexp-quote tag) "$") end 'move)
-      (let ((end (match-beginning 0)))
+    (when (re-search-forward (concat (regexp-quote tag) "$") end 'move)
+      (let ((end (match-end 0)))
         (put-text-property (1- end) end 'syntax-table (string-to-syntax "|"))
         )
       ))
-
-
-  (while (re-search-forward "#string \\([a-zA-Z_][a-zA-Z0-9_]*\\)" end 'move)
-    (let ((tag (match-string 1))
-          (beg (match-end 0)))
+  (while (re-search-forward "#string +\\([a-zA-Z_][a-zA-Z0-9_]+\\)" end 'move)
+    (unless (nth 4 (syntax-ppss))
+      (let ((tag (match-string 1))
+          (beg (match-beginning 1)))
+      (unless (string= tag "CODE")
         (put-text-property beg (1+ beg) 'here-string-marker tag)
         (put-text-property beg (1+ beg) 'syntax-table (string-to-syntax "|"))
-      (when (re-search-forward (concat "^" (regexp-quote tag) "$") end 'move)
-        ;; Apply string syntax to everything between the start and end of heredoc
-        (let ((end (match-beginning 0)))
-        (put-text-property (1- end) end 'syntax-table (string-to-syntax "|"))
-        ))))
+        (when (re-search-forward (concat "^" (regexp-quote tag) "$") end 'move)
+          ;; Apply string syntax to everything between the start and end of heredoc
+          (let ((end (match-end 0)))
+            (put-text-property (1- end) end 'syntax-table (string-to-syntax "|"))
+            ))))
+
+      )
+    )
   )
 
 
 (defconst jai-font-lock-defaults
-  `(
-    ;; Keywords
+  `(;; Keywords
     (,(jai-keywords-rx jai-keywords) 1 font-lock-keyword-face)
 
     ;; single quote characters
@@ -109,13 +138,10 @@
     ;; Variables
     (,(jai-keywords-rx jai-builtins) 1 font-lock-variable-name-face)
 
-    ;; Constants
-    (,(jai-keywords-rx jai-constants) 1 font-lock-constant-face)
-
     ;; Hash directives
     ("#[[:word:]_]+" . font-lock-preprocessor-face)
 
-    ;; At directives
+    ;; At notes
     ("@[[:word:]_]w+" . font-lock-preprocessor-face)
 
     ;; Strings
@@ -129,8 +155,7 @@
     (,jai-hat-type-rx 1 font-lock-type-face)
     (,jai-dollar-type-rx 1 font-lock-type-face)
 
-    ("---" . font-lock-constant-face)
-    ))
+    ("---" . font-lock-constant-face)))
 
 ;; add setq-local for older emacs versions
 (unless (fboundp 'setq-local)
@@ -154,7 +179,7 @@
           (forward-char 1)))
       found)))
 
-(defun jai-beginning-of-defun (&optional count)
+(defun jai-beginning-of-defun ()
   "Go to line on which current function starts."
   (interactive)
   (let ((orig-level (jai-paren-level)))
@@ -166,8 +191,8 @@
       (while (>= (jai-paren-level) orig-level)
         (skip-chars-backward "^{")
         (backward-char))))
-  (if (jai-line-is-defun)
-      (beginning-of-line)))
+  (when (jai-line-is-defun)
+    (beginning-of-line)))
 
 (defun jai-end-of-defun ()
   "Go to line on which current function ends."
@@ -183,31 +208,56 @@
         (forward-char)))))
 
 (defalias 'jai-parent-mode
- (if (fboundp 'prog-mode) 'prog-mode 'fundamental-mode))
+  (if (fboundp 'prog-mode) 'prog-mode 'fundamental-mode))
+
+;; imenu hookup
+(add-hook 'jai-mode-hook
+          (lambda ()
+            (setq imenu-generic-expression
+                  '(("type" "^\\(.*:*.*\\) : " 1)
+                    ("function" "^\\(.*\\) :: " 1)
+                    ("struct" "^\\(.*\\) *:: *\\(struct\\)\\(.*\\){" 1)))))
+
+;; NOTE: taken from the scala-indent package and modified for Jai.
+;;   Still uses the js-indent-line as a base, which will have to be
+;;   replaced when the language is more mature.
+(defun jai--indent-on-parentheses ()
+  (when (and (= (char-syntax (char-before)) ?\))
+             (= (save-excursion (back-to-indentation) (point)) (1- (point))))
+    (js-indent-line)))
+
+(defun jai--add-self-insert-hooks ()
+  (add-hook 'post-self-insert-hook
+            'jai--indent-on-parentheses))
 
 ;;;###autoload
 (define-derived-mode jai-mode jai-parent-mode "Jai"
- :syntax-table jai-mode-syntax-table
- :group 'jai
- (setq bidi-paragraph-direction 'left-to-right)
- (setq-local require-final-newline mode-require-final-newline)
- (setq-local parse-sexp-ignore-comments t)
- (setq-local comment-start-skip "\\(//+\\|/\\*+\\)\\s *")
- (setq-local comment-start "/*")
- (setq-local comment-end "*/")
- (setq-local indent-line-function 'js-indent-line)
- (setq-local font-lock-defaults '(jai-font-lock-defaults))
- (setq-local beginning-of-defun-function 'jai-beginning-of-defun)
- (setq-local end-of-defun-function 'jai-end-of-defun)
- (setq-local syntax-propertize-function 'jai-syntax-propertize-function)
- (font-lock-fontify-buffer))
+  :syntax-table jai-mode-syntax-table
+  :group 'jai
+  (setq bidi-paragraph-direction 'left-to-right)
+  (setq-local require-final-newline mode-require-final-newline)
+  (setq-local parse-sexp-ignore-comments t)
+  (setq-local comment-start-skip "\\(//+\\|/\\*+\\)\\s *")
+  (setq-local comment-start "//")
+  (setq-local block-comment-start "/*")
+  (setq-local block-comment-end "*/")
+  (setq-local indent-line-function 'js-indent-line)
+  (setq-local font-lock-defaults '(jai-font-lock-defaults))
+  (setq-local beginning-of-defun-function 'jai-beginning-of-defun)
+  (setq-local end-of-defun-function 'jai-end-of-defun)
+  (setq-local syntax-propertize-function 'jai-syntax-propertize-function)
+  ;; add indent functionality to some characters
+  (jai--add-self-insert-hooks)
+
+  (font-lock-ensure))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.jai\\'" . jai-mode))
 
 (defconst jai--error-regexp
-  "^\\([^ \n:]+.*\.jai\\):\\([0-9]+\\),\\([0-9]+\\):")
+  "\\([^ \n:]+.*\.jai\\):\\([0-9]+\\),\\([0-9]+\\):")
 (push `(jai ,jai--error-regexp 1 2 3 2) compilation-error-regexp-alist-alist)
 (push 'jai compilation-error-regexp-alist)
 
 (provide 'jai-mode)
+;;; jai-mode.el ends here
