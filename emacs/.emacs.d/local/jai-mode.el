@@ -88,7 +88,7 @@
   (jai-wrap-word-rx (regexp-opt keywords t)))
 
 (defconst jai-hat-type-rx (rx (group (and "^" (1+ word)))))
-(defconst jai-dollar-type-rx (rx (group "$" (or (1+ word) (opt "$")))))
+(defconst jai-dollar-type-rx (rx (group "$" (or (1+ (any word "_")) (opt "$")))))
 (defconst jai-number-rx
   (rx (and
        symbol-start
@@ -97,32 +97,39 @@
        (opt (and (any "_" "A-Z" "a-z") (* (any "_" "A-Z" "a-z" "0-9"))))
        symbol-end)))
 
+(defun jai-here-string-wrap-rx (tag)
+  (concat "^[[:space:]]*" (regexp-quote tag) "\\b"))
+
 (defun jai-syntax-propertize-function (start end)
   "Mark all heredoc regions as strings in the buffer."
   (goto-char start)
-  ;; If we're already inside a herestring we have to take care of that one first
-  (when-let* ((ppss (syntax-ppss))
-         (inside (eq t (nth 3 ppss)))
-         (start-pos (nth 8 ppss))
-         (tag (get-text-property start-pos 'here-string-marker)))
-    (when (re-search-forward (concat (regexp-quote tag) "$") end 'move)
-      (let ((end (match-end 0)))
-        (put-text-property (1- end) end 'syntax-table (string-to-syntax "|"))
-        )
-      ))
-  (while (re-search-forward "#string +\\([a-zA-Z_][a-zA-Z0-9_]+\\)" end 'move)
-    (unless (nth 4 (syntax-ppss))
-      (let ((tag (match-string 1))
-          (beg (match-beginning 1)))
-      (unless (string= tag "CODE")
-        (put-text-property beg (1+ beg) 'here-string-marker tag)
-        (put-text-property beg (1+ beg) 'syntax-table (string-to-syntax "|"))
-        (when (re-search-forward (concat "^" (regexp-quote tag) "$") end 'move)
-          ;; Apply string syntax to everything between the start and end of heredoc
-          (let ((end (match-end 0)))
-            (put-text-property (1- end) end 'syntax-table (string-to-syntax "|"))
-            ))))
+  (let ((case-fold-search nil))
+    ;; If we're already inside a herestring we have to take care of that one first
+    (when-let* (
+                (ppss (syntax-ppss))
+                ((eq t (nth 3 ppss)))
+                (start-pos (nth 8 ppss))
+                (tag (get-text-property start-pos 'here-string-marker))
+                ((re-search-forward (jai-here-string-wrap-rx tag) end 'move))
+                (end (match-end 0))
+                )
+      (put-text-property (1- end) end 'syntax-table (string-to-syntax "|"))
+      )
+    ;; Have to take care of the rest of the herestrins
+    (while (re-search-forward "#string +\\([a-zA-Z_][a-zA-Z0-9_]+\\)" end 'move)
+      (unless (nth 4 (syntax-ppss))
+        (let ((tag (match-string 1))
+              (beg (match-beginning 1)))
+          (unless (string= tag "CODE")
+            (put-text-property beg (1+ beg) 'here-string-marker tag)
+            (put-text-property beg (1+ beg) 'syntax-table (string-to-syntax "|"))
+            (when (re-search-forward (jai-here-string-wrap-rx tag) end 'move)
+              ;; Apply string syntax to everything between the start and end of heredoc
+              (let ((end (match-end 0)))
+                (put-text-property (1- end) end 'syntax-table (string-to-syntax "|"))
+                ))))
 
+        )
       )
     )
   )
@@ -139,7 +146,7 @@
     (,(jai-keywords-rx jai-builtins) 1 font-lock-variable-name-face)
 
     ;; Hash directives
-    ("#[[:word:]_]+" . font-lock-preprocessor-face)
+    ("#[[:word:]_,]+" . font-lock-preprocessor-face)
 
     ;; At notes
     ("@[[:word:]_]w+" . font-lock-preprocessor-face)
