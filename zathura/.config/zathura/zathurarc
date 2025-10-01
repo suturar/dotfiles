@@ -189,3 +189,5 @@ map [presentation] <A-\>> goto bottom
 set selection-clipboard clipboard
 set recolor true
 set default-bg \#333333
+set recolor-lightcolor \#181818
+set recolor-darkcolor  \#fafafa

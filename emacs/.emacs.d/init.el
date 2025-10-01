@@ -25,6 +25,7 @@
 (setq set-mark-command-repeat-pop t)
 (global-so-long-mode 1)
 (setq enable-recursive-minibuffers t)
+(setq ibuffer-use-other-window t)
 (minibuffer-depth-indicate-mode t)
 
 ;; (load (concat user-emacs-directory "local/make-mark-visible.el"))
@@ -32,10 +33,14 @@
 ;; WARNING: This is something I should take a closer look into
 (setq
  display-buffer-alist
- '((".*"
+ '(
+   ((derived-mode . dired-mode)
+    (display-buffer-same-window))
+   (t
     (display-buffer-reuse-window
-     display-buffer-in-previous-window)
-    (reusable-frames . t))))
+    display-buffer-in-previous-window)
+    (reusable-frames . t))
+   ))
 ;; THEMES
 (use-package gruber-darker-theme
   :ensure t
@@ -52,7 +57,9 @@
   :hook ((dired-mode) . auto-revert-mode)
   :bind (:map
 	 dired-mode-map
-	 ("<mouse-2>" . 'dired-mouse-find-file)))
+	 ("<mouse-2>" . 'dired-mouse-find-file)
+         ("RET" . 'seth-dired-find-file)
+         ))
 
 (use-package cc-mode
   :config (setq-default c-basic-offset 4)
@@ -81,7 +88,7 @@
 (use-package python
   :ensure t
   :config
-  (setq python-shell-setup-codes '("from importlib import reload"))
+  (setq python-shell-setup-codes '("from importlib import reloadimport sys"))
   (setq python-shell-font-lock-enable nil)
   :bind (:map python-mode-map
               ("C-c h" . python-send-paragraph)
@@ -134,7 +141,7 @@
   )
 (use-package multiple-cursors
   :ensure t
-  :bind (:map global-map 
+  :bind (:map global-map
 	      ("C->" . 'mc/mark-next-like-this)
 	      ("C->" . 'mc/mark-next-like-this)
 	      ("C-<" . 'mc/mark-previous-like-this)
@@ -147,6 +154,7 @@
 (use-package jai-mode)
 (use-package simpc-mode
   :mode ("\\.[hc]\\(pp\\)?\\'" . simpc-mode))
+(use-package asy-mode)
 
 (use-package image-mode
   :hook (image-mode . auto-revert-mode))
@@ -290,6 +298,7 @@ case. Otherwise call 'do-auto-fill'."
   :config
   (ivy-mode)
   (recentf-mode)
+  (setq ivy-use-selectable-prompt t)
   (setq recentf-max-saved-items 100)
   :bind (:map global-map
               ("M-x" . counsel-M-x)
@@ -374,30 +383,6 @@ case. Otherwise call 'do-auto-fill'."
 (dolist (command '(upcase-region narrow-to-region))
   (put command 'disabled nil))
 
-;; My keybindings
-(keymap-global-set "C-," #'duplicate-line)
-(keymap-global-set "C-c C-o" #'find-file-at-point)
-(keymap-global-set "C-c o" #'find-file-at-point)
-(keymap-global-set "M-o" #'other-window)
-(keymap-global-set "M-O" #'window-swap-states)
-(keymap-global-set "M-/" #'company-complete)
-(keymap-global-set "M-T" #'transpose-regions)
-(keymap-global-set "<f5>" #'compile)
-(keymap-global-set "M-<f5>" #'recompile)
-(keymap-global-set "C-x ;" #'indent-for-comment)
-
-(keymap-global-set "C-c a" #'org-agenda)
-(keymap-global-set "C-c c" #'org-capture)
-(keymap-global-set "M-u" #'upcase-dwim)
-(keymap-global-set "M-l" #'downcase-dwim)
-(keymap-global-set "M-c" #'capitalize-dwim)
-
-(keymap-global-set "C-M-i" #'org-roam-node-insert)
-(keymap-global-set "C-M-o" #'org-roam-node-find)
-(keymap-global-set "C-M-r" #'org-roam-buffer-toggle)
-(keymap-global-set "M-p" #'scroll-down-line)
-(keymap-global-set "M-n" #'scroll-up-line)
-
 ;; My functions
 (defun switch-theme (theme)
   ;; This interactive call is taken from `load-theme'
@@ -417,12 +402,16 @@ case. Otherwise call 'do-auto-fill'."
         (file-name-directory
          (file-relative-name (org-roam-node-file node) org-roam-directory))))
     (error "")))
-(defun seth-insert-week-month-year (arg)
-  (interactive)
-  (insert (format-time-string "Week #%V of %Y (%B)")))
-(defun seth-insert-date (arg)
-  (interactive)
-  (insert (format-time-string "%d-%m-%Y" )))
+
+(defun seth-insert-week-month-year ()
+  (interactive "")
+  (if (eq major-mode 'LaTeX-mode)
+      (insert (format-time-string "Week \\#%V of %Y (%B)"))
+      (insert (format-time-string "Week #%V of %Y (%B)"))
+      ))
+(defun seth-insert-date ()
+  (interactive "")
+  (insert (format-time-string "%d-%m-%Y")))
 
 (defun seth-comment-header (header)
   (interactive "sheader-text: ")
@@ -440,3 +429,41 @@ case. Otherwise call 'do-auto-fill'."
   (newline-and-indent)
   )
 
+(defun seth-dired-find-file ()
+  "In Dired, visit the file or directory named on this line (OPEN IN THIS BUFFER)."
+  (interactive nil dired-mode)
+  (let ((display-buffer-overriding-action '(display-buffer-same-window)))
+    (dired--find-possibly-alternative-file (dired-get-file-for-visit))
+    ))
+
+;; Numba error regexp
+(defconst python-numba--error-regexp
+  "^File \"\\(.*\.py\\)\", line \\([0-9]+\\):")
+(push `(python-numba ,python-numba--error-regexp 1 2) compilation-error-regexp-alist-alist)
+(push 'python-numba compilation-error-regexp-alist)
+
+
+;; My keybindings
+(keymap-global-set "C-." #'duplicate-line)
+(keymap-global-set "C-c C-o" #'find-file-at-point)
+(keymap-global-set "C-c o" #'find-file-at-point)
+(keymap-global-set "M-o" #'other-window)
+(keymap-global-set "M-O" #'window-swap-states)
+(keymap-global-set "M-/" #'company-complete)
+(keymap-global-set "M-T" #'transpose-regions)
+(keymap-global-set "<f5>" #'compile)
+(keymap-global-set "M-<f5>" #'recompile)
+(keymap-global-set "C-x ;" #'indent-for-comment)
+
+(keymap-global-set "C-c a" #'org-agenda)
+(keymap-global-set "C-c c" #'org-capture)
+(keymap-global-set "M-u" #'upcase-dwim)
+(keymap-global-set "M-l" #'downcase-dwim)
+(keymap-global-set "M-c" #'capitalize-dwim)
+
+(keymap-global-set "C-M-i" #'org-roam-node-insert)
+(keymap-global-set "C-M-o" #'org-roam-node-find)
+(keymap-global-set "C-M-r" #'org-roam-buffer-toggle)
+(keymap-global-set "M-P" #'scroll-down-line)
+(keymap-global-set "M-N" #'scroll-up-line)
+(keymap-global-set "C-x C-b" #'ibuffer)
